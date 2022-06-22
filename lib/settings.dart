@@ -250,13 +250,13 @@ class _SettingsPageState extends State<SettingsPage> {
             margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             child: ListTile(
               leading: const Icon(Icons.timer_outlined, size: 40),
-              title: const Text('Диапазон разделения записи звука в секундах'),
-              subtitle: Text('${appSettings.duration} сек.'),
+              title: const Text('Максимальное время записи в один файл (мин.)'),
+              subtitle: Text('${appSettings.duration ~/ 60} мин.'),
               onTap: () {
                 showDialog<String>(
                   context: context,
                   builder: (context) => SimpleDialog(
-                    title: const Text('Задача диапазона'),
+                    title: const Text('Максимальное время'),
                     children: [
                       Container(
                         margin: const EdgeInsets.all(10),
@@ -270,12 +270,12 @@ class _SettingsPageState extends State<SettingsPage> {
                       TextButton(
                         onPressed: () {
                           setState(() {
-                            appSettings.duration = duration;
+                            appSettings.duration = duration * 60;
                             changePrefs('duration', appSettings.duration);
                             Navigator.pop(context);
                           });
                         },
-                        child: const Text('Задать'),
+                        child: const Text('Задать время'),
                       )
                     ],
                   ),
