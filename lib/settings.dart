@@ -6,17 +6,31 @@ import 'global.dart';
 import 'classes.dart';
 
 const Map<String, List<int>> bitRates = {
-  'AAC LC': [32, 48, 64, 80, 96, 128, 160, 192, 256],
-  'AAC HE': [16, 24, 32, 48, 64, 80, 96],
-  'OPUS': [6, 8, 12, 16, 24, 32, 48, 64, 80, 96, 128, 160, 192, 256],
+  'AAC LC': [8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 128, 160, 192, 256],
+  'AAC HE': [8, 16, 24, 32, 40, 48, 56, 64, 80],
+  'OPUS': [6, 8, 16, 24, 32, 40, 48, 64, 80, 96, 128, 160, 192, 256],
   'WAV': [64, 96, 128, 160, 192, 256, 320],
+};
+
+const Map<String, List<int>> samplingRates = {
+  'AAC LC': [8000, 12000, 16000, 24000, 44100, 48000],
+  'AAC HE': [8000, 12000, 16000, 24000, 44100, 48000],
+  'OPUS': [8000, 12000, 16000, 24000, 48000],
+  'WAV': [8000, 12000, 16000, 24000, 44100, 48000],
 };
 
 const Map<String, int> defaultBitRates = {
   'AAC LC': 64,
   'AAC HE': 64,
-  'OPUS': 32,
+  'OPUS': 64,
   'WAV': 128,
+};
+
+const Map<String, int> defaultSamplingRates = {
+  'AAC LC': 48000,
+  'AAC HE': 48000,
+  'OPUS': 48000,
+  'WAV': 48000,
 };
 
 class SettingsPage extends StatefulWidget {
@@ -44,6 +58,9 @@ class _SettingsPageState extends State<SettingsPage> {
   double bitRate = bitRates[appSettings.codec]!
       .indexOf(appSettings.bitRate ~/ 1000)
       .toDouble();
+  double samplingRate = samplingRates[appSettings.codec]!
+      .indexOf(appSettings.samplingRate)
+      .toDouble();
 
   @override
   Widget build(BuildContext context) {
@@ -70,12 +87,12 @@ class _SettingsPageState extends State<SettingsPage> {
                     title: const Text('Тема приложения'),
                     children: [
                       ListTile(
-                        leading: const Icon(Icons.wb_sunny_outlined),
+                        leading: const Icon(Icons.light_mode_outlined),
                         title: const Text('Светлая тема'),
                         onTap: () => Navigator.pop(context, 'light'),
                       ),
                       ListTile(
-                        leading: const Icon(Icons.nights_stay_outlined),
+                        leading: const Icon(Icons.dark_mode_outlined),
                         title: const Text('Темная тема'),
                         onTap: () => Navigator.pop(context, 'dark'),
                       ),
@@ -143,11 +160,18 @@ class _SettingsPageState extends State<SettingsPage> {
                         setState(() {
                           appSettings.codec = value;
                           appSettings.bitRate = defaultBitRates[value]! * 1000;
+                          appSettings.samplingRate =
+                              defaultSamplingRates[value]!;
                           bitRate = bitRates[appSettings.codec]!
                               .indexOf(appSettings.bitRate ~/ 1000)
                               .toDouble();
+                          samplingRate = samplingRates[appSettings.codec]!
+                              .indexOf(appSettings.samplingRate)
+                              .toDouble();
                           changePrefs('codec', appSettings.codec);
                           changePrefs('bitRates', appSettings.bitRate);
+                          changePrefs(
+                              'samplingRates', appSettings.samplingRate);
                         });
                       }
                     });
@@ -193,6 +217,42 @@ class _SettingsPageState extends State<SettingsPage> {
                     'Год: ${(appSettings.bitRate / 8589934592 * 31536000).toStringAsFixed(2)} ГБ',
                   ),
                 ),
+                ListTile(
+                  leading: Text(
+                    '${appSettings.samplingRate}\nГц',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  title: const Text('Частота дискретизации звука'),
+                  subtitle: Slider(
+                    value: samplingRate,
+                    max:
+                        samplingRates[appSettings.codec]!.length.toDouble() - 1,
+                    divisions: samplingRates[appSettings.codec]!.length - 1,
+                    label:
+                        '${samplingRates[appSettings.codec]![samplingRate.toInt()]} Гц',
+                    onChanged: (double value) {
+                      setState(() {
+                        samplingRate = value;
+                        appSettings.samplingRate = samplingRates[
+                            appSettings.codec]![samplingRate.toInt()];
+                        changePrefs(
+                          'samplingRate',
+                          samplingRates[appSettings.codec]![
+                              samplingRate.toInt()],
+                        );
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Card(
+            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            child: Column(
+              children: [
                 ListTile(
                   leading: const Icon(Icons.sort_outlined, size: 40),
                   title: const Text('Сортировка по папкам'),
@@ -243,44 +303,42 @@ class _SettingsPageState extends State<SettingsPage> {
                     });
                   },
                 ),
-              ],
-            ),
-          ),
-          Card(
-            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            child: ListTile(
-              leading: const Icon(Icons.timer_outlined, size: 40),
-              title: const Text('Максимальное время записи в один файл (мин.)'),
-              subtitle: Text('${appSettings.duration ~/ 60} мин.'),
-              onTap: () {
-                showDialog<String>(
-                  context: context,
-                  builder: (context) => SimpleDialog(
-                    title: const Text('Максимальное время'),
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.all(10),
-                        child: TextFormField(
-                          keyboardType: TextInputType.number,
-                          onChanged: (value) {
-                            duration = int.parse(value);
-                          },
-                        ),
+                ListTile(
+                  leading: const Icon(Icons.timer_outlined, size: 40),
+                  title: const Text(
+                      'Максимальное время записи в один файл (мин.)'),
+                  subtitle: Text('${appSettings.duration ~/ 60} мин.'),
+                  onTap: () {
+                    showDialog<String>(
+                      context: context,
+                      builder: (context) => SimpleDialog(
+                        title: const Text('Максимальное время в минутах'),
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.all(10),
+                            child: TextFormField(
+                              keyboardType: TextInputType.number,
+                              onChanged: (value) {
+                                duration = int.parse(value);
+                              },
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                appSettings.duration = duration * 60;
+                                changePrefs('duration', appSettings.duration);
+                                Navigator.pop(context);
+                              });
+                            },
+                            child: const Text('Задать время'),
+                          )
+                        ],
                       ),
-                      TextButton(
-                        onPressed: () {
-                          setState(() {
-                            appSettings.duration = duration * 60;
-                            changePrefs('duration', appSettings.duration);
-                            Navigator.pop(context);
-                          });
-                        },
-                        child: const Text('Задать время'),
-                      )
-                    ],
-                  ),
-                );
-              },
+                    );
+                  },
+                ),
+              ],
             ),
           ),
           const Card(

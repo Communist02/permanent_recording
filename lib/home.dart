@@ -68,11 +68,12 @@ class _HomePageState extends State<HomePage> {
       path = directory;
     }
     final pathFile = '$path/$fileName';
-    await File(pathFile).create(recursive: true);
+    File(pathFile).createSync(recursive: true);
     await _record.start(
       path: pathFile,
       encoder: codec,
       bitRate: appSettings.bitRate,
+      samplingRate: appSettings.samplingRate,
     );
     appSettings.status = RecordingStatus.record;
   }
@@ -222,7 +223,7 @@ class _HomePageState extends State<HomePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               IconButton(
-                icon: const Icon(Icons.call_split),
+                icon: const Icon(Icons.repeat),
                 iconSize: 50,
                 onPressed: appSettings.status == RecordingStatus.none
                     ? null

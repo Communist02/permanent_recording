@@ -12,8 +12,9 @@ void main() async {
   appSettings.change(
     theme: prefs.getString('theme'),
     path: prefs.getString('path'),
-    bitRate: prefs.getInt('bitRate'),
     codec: prefs.getString('codec'),
+    bitRate: prefs.getInt('bitRate'),
+    samplingRate: prefs.getInt('samplingRate'),
     duration: prefs.getInt('duration'),
     endDay: prefs.getBool('endDay'),
     sort: prefs.getString('sort'),
@@ -37,8 +38,8 @@ class MyApp extends StatelessWidget {
               title: 'Permanent recording',
               themeMode:
                   AppThemes().getMode(context.watch<ChangeTheme>().getTheme),
-              theme: AppThemes().light(),
-              darkTheme: AppThemes().dark(),
+              theme: AppThemes().light,
+              darkTheme: AppThemes().dark,
               home: const HomePage(),
             );
           },

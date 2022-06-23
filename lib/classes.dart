@@ -10,8 +10,8 @@ enum SortRecords {
   year('year'),
   yearForMonth('yearForMonth'), //Default
   yearForMonthForDay('yearForMonthForDay'),
-  yearMonthForDay('yearMonthForDay'),
   yearMonth('yearMonth'),
+  yearMonthForDay('yearMonthForDay'),
   yearMonthDay('yearMonthDay');
 
   final String value;
@@ -22,8 +22,9 @@ enum SortRecords {
 class Settings {
   String theme = 'system';
   String path = '/Permanent recording/';
-  int bitRate = 64000;
   String codec = 'AAC LC';
+  int bitRate = 64000;
+  int samplingRate = 48000;
   int duration = 0;
   bool endDay = false;
   String sort = 'none';
@@ -32,8 +33,9 @@ class Settings {
   void change({
     String? theme,
     String? path,
-    int? bitRate,
     String? codec,
+    int? bitRate,
+    int? samplingRate,
     int? duration,
     bool? endDay,
     String? sort,
@@ -45,11 +47,14 @@ class Settings {
     if (path != null) {
       this.path = path;
     }
+    if (codec != null) {
+      this.codec = codec;
+    }
     if (bitRate != null) {
       this.bitRate = bitRate;
     }
-    if (codec != null) {
-      this.codec = codec;
+    if (samplingRate != null) {
+      this.samplingRate = samplingRate;
     }
     if (duration != null) {
       this.duration = duration;

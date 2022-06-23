@@ -11,20 +11,15 @@ class AppThemes {
     return ThemeMode.system;
   }
 
-  ThemeData light() {
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.light,
-    );
-  }
+  ThemeData light = ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.light,
+    colorSchemeSeed: const Color(0xFF004A77),
+  );
 
-  ThemeData dark() {
-    const Color primaryColor = Color(0xFF004A77);
-
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.dark,
-      colorSchemeSeed: primaryColor,
-    );
-  }
+  ThemeData dark = ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.dark,
+    colorSchemeSeed: const Color(0xFF004A77),
+  );
 }

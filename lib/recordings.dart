@@ -4,6 +4,7 @@ import 'package:file_manager/file_manager.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'global.dart';
 
 final player = AudioPlayer();
@@ -21,12 +22,36 @@ class _RecordingsPageState extends State<RecordingsPage> {
   @override
   Widget build(BuildContext context) {
     Future<List<FileSystemEntity>> load() async {
-      final storage = await getExternalStorageDirectory();
-      final directory = Directory('${storage?.path}${appSettings.path}');
-      List<FileSystemEntity> folders =
-          directory.listSync(recursive: true, followLinks: false);
-      folders = folders.reversed.toList();
-      return folders;
+      if (await Permission.storage.isDenied) {
+        await Permission.storage.request();
+      }
+      if (await Permission.storage.isGranted) {
+        final storage = await getExternalStorageDirectory();
+        final directory = Directory('${storage?.path}${appSettings.path}');
+        if (!directory.existsSync()) {
+          return [];
+        }
+        List<FileSystemEntity>? folders =
+            directory.listSync(recursive: true, followLinks: false);
+        folders = folders.reversed.toList();
+        return folders;
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Нет прав доступа'),
+            content: const Text(
+                'Для просмотра записей необходим доступ к файловому хранилищу'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Ок'),
+              ),
+            ],
+          ),
+        );
+        return [];
+      }
     }
 
     return Scaffold(
@@ -36,7 +61,9 @@ class _RecordingsPageState extends State<RecordingsPage> {
       body: FutureBuilder<List<FileSystemEntity>>(
         future: load(),
         builder: (context, folders) {
-          if (folders.hasData) {
+          if (!folders.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          } else {
             final List<FileSystemEntity> entities = folders.data!;
             audioFiles.clear();
             for (final FileSystemEntity entity in entities) {
@@ -47,7 +74,9 @@ class _RecordingsPageState extends State<RecordingsPage> {
                 }
               }
             }
-
+            if (audioFiles.isEmpty) {
+              return const Center(child: Text('Нет записей'));
+            }
             return ListView.builder(
               itemCount: entities.length,
               itemBuilder: (context, index) {
@@ -57,11 +86,21 @@ class _RecordingsPageState extends State<RecordingsPage> {
                 final element = entities[index];
                 final String name = element.path.split('/').last;
                 return ListTile(
-                  selected: filePath == entities[index].path,
-                  leading: FileManager.isFile(element)
-                      ? const Icon(Icons.audiotrack_outlined, size: 30)
-                      : const Icon(Icons.folder_outlined, size: 30),
+                  leading: const Icon(Icons.audiotrack_outlined, size: 30),
                   title: Text(name),
+                  selected: filePath == entities[index].path,
+                  trailing: PopupMenuButton(
+                    itemBuilder: (context) {
+                      return [
+                        PopupMenuItem(child: const Text('Удалить'), onTap: () {
+                          setState(() {
+                            entities[index].deleteSync();
+                            filePath = '';
+                          });
+                        }),
+                      ];
+                    },
+                  ),
                   onTap: () {
                     if (FileManager.isDirectory(element)) {
                     } else {
@@ -74,8 +113,6 @@ class _RecordingsPageState extends State<RecordingsPage> {
                 );
               },
             );
-          } else {
-            return const CircularProgressIndicator();
           }
         },
       ),
