@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:record/record.dart';
 import 'classes.dart';
+import 'fraud.dart';
 import 'settings.dart';
 import 'recordings.dart';
 import 'global.dart';
@@ -11,6 +12,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'notifications.dart';
 
 final _record = Record();
 bool _isTimer = false;
@@ -24,7 +26,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Future<void> record() async {
+  Future record() async {
     final AudioEncoder codec;
     switch (appSettings.codec) {
       case 'AAC HE':
@@ -50,8 +52,13 @@ class _HomePageState extends State<HomePage> {
       default:
         format = 'm4a';
     }
-    final storage = await getExternalStorageDirectory();
-    final directory = '${storage?.path}${appSettings.path}';
+    final String directory;
+    if (appSettings.path.isEmpty) {
+      final storage = await getExternalStorageDirectory();
+      directory = '${storage?.path}/Recordings';
+    } else {
+      directory = appSettings.path;
+    }
     final DateTime dateTime = DateTime.now();
     final String fileName =
         '${DateFormat('dd.MM.yyyy HH-mm-ss').format(dateTime)}.$format';
@@ -68,6 +75,7 @@ class _HomePageState extends State<HomePage> {
       path = directory;
     }
     final pathFile = '$path/$fileName';
+    print(pathFile);
     File(pathFile).createSync(recursive: true);
     await _record.start(
       path: pathFile,
@@ -76,6 +84,9 @@ class _HomePageState extends State<HomePage> {
       samplingRate: appSettings.samplingRate,
     );
     appSettings.status = RecordingStatus.record;
+    if (appSettings.notifications) {
+      Notifications.showRecordNotification();
+    }
   }
 
   @override
@@ -86,7 +97,7 @@ class _HomePageState extends State<HomePage> {
       ),
     );
 
-    void startRecording({bool split = false}) async {
+    Future startRecording({bool split = false}) async {
       if (!split) {
         if (await Permission.storage.isDenied) {
           await Permission.storage.request();
@@ -119,14 +130,14 @@ class _HomePageState extends State<HomePage> {
       setState(() {});
     }
 
-    void pauseRecording() async {
+    Future pauseRecording() async {
       await _record.pause();
       setState(() {
         appSettings.status = RecordingStatus.pause;
       });
     }
 
-    void resumeRecording() async {
+    Future resumeRecording() async {
       await _record.resume();
       setState(() {
         appSettings.status = RecordingStatus.record;
@@ -141,9 +152,10 @@ class _HomePageState extends State<HomePage> {
         appSettings.status = RecordingStatus.none;
         time = 0;
       });
+      Notifications.deleteNotification(0);
     }
 
-    void splitRecording() async {
+    Future splitRecording() async {
       await _record.stop();
       await record();
       setState(() {
@@ -156,7 +168,7 @@ class _HomePageState extends State<HomePage> {
       return '${f.format(time ~/ 3600)}:${f.format(time ~/ 60 % 60)}:${f.format(time % 60)}';
     }
 
-    void checkRecording() async {
+    Future checkRecording() async {
       if (!await _record.isRecording() &&
           appSettings.status == RecordingStatus.record) {
         startRecording();
@@ -196,6 +208,15 @@ class _HomePageState extends State<HomePage> {
           },
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.android_outlined),
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const FraudPage()),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.settings_outlined),
             onPressed: () async {

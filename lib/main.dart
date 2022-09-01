@@ -18,6 +18,7 @@ void main() async {
     duration: prefs.getInt('duration'),
     endDay: prefs.getBool('endDay'),
     sort: prefs.getString('sort'),
+    notifications: prefs.getBool('notifications'),
     status: prefs.getString('status'),
   );
   runApp(const MyApp());
@@ -37,9 +38,9 @@ class MyApp extends StatelessWidget {
             return MaterialApp(
               title: 'Permanent recording',
               themeMode:
-                  AppThemes().getMode(context.watch<ChangeTheme>().getTheme),
-              theme: AppThemes().light,
-              darkTheme: AppThemes().dark,
+                  AppTheme.getMode(context.watch<ChangeTheme>().getTheme),
+              theme: AppTheme.light,
+              darkTheme: AppTheme.dark,
               home: const HomePage(),
             );
           },

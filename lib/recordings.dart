@@ -26,8 +26,13 @@ class _RecordingsPageState extends State<RecordingsPage> {
         await Permission.storage.request();
       }
       if (await Permission.storage.isGranted) {
-        final storage = await getExternalStorageDirectory();
-        final directory = Directory('${storage?.path}${appSettings.path}');
+        final Directory directory;
+        if (appSettings.path.isEmpty) {
+          final storage = await getExternalStorageDirectory();
+          directory = Directory('${storage?.path}/Recordings/');
+        } else {
+          directory = Directory(appSettings.path);
+        }
         if (!directory.existsSync()) {
           return [];
         }
@@ -92,12 +97,15 @@ class _RecordingsPageState extends State<RecordingsPage> {
                   trailing: PopupMenuButton(
                     itemBuilder: (context) {
                       return [
-                        PopupMenuItem(child: const Text('Удалить'), onTap: () {
-                          setState(() {
-                            entities[index].deleteSync();
-                            filePath = '';
-                          });
-                        }),
+                        PopupMenuItem(
+                          child: const Text('Удалить'),
+                          onTap: () {
+                            setState(() {
+                              entities[index].deleteSync();
+                              filePath = '';
+                            });
+                          },
+                        ),
                       ];
                     },
                   ),
@@ -182,12 +190,16 @@ class _RecordingsPageState extends State<RecordingsPage> {
                       },
                     ),
                     TextButton(
+                      style: const ButtonStyle(minimumSize: MaterialStatePropertyAll(Size(54, 0))),
                       onPressed: () {
                         setState(() {
                           player.setSpeed(1);
                         });
                       },
-                      child: Text(player.speed.toString()),
+                      child: Text(
+                        player.speed.toString(),
+                        style: const TextStyle(fontSize: 18),
+                      ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.add_circle),
@@ -204,7 +216,7 @@ class _RecordingsPageState extends State<RecordingsPage> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.skip_previous_outlined),
-                  iconSize: 50,
+                  iconSize: 46,
                   onPressed: () {
                     setState(() {
                       final index = audioFiles.indexOf(filePath);
@@ -238,7 +250,7 @@ class _RecordingsPageState extends State<RecordingsPage> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.skip_next_outlined),
-                  iconSize: 50,
+                  iconSize: 46,
                   onPressed: () {
                     setState(
                       () {

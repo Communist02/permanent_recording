@@ -21,13 +21,14 @@ enum SortRecords {
 
 class Settings {
   String theme = 'system';
-  String path = '/Permanent recording/';
+  String path = '';
   String codec = 'AAC LC';
   int bitRate = 64000;
   int samplingRate = 48000;
   int duration = 0;
   bool endDay = false;
   String sort = 'none';
+  bool notifications = true;
   RecordingStatus status = RecordingStatus.none;
 
   void change({
@@ -39,6 +40,7 @@ class Settings {
     int? duration,
     bool? endDay,
     String? sort,
+    bool? notifications,
     dynamic status,
   }) {
     if (theme != null) {
@@ -64,6 +66,9 @@ class Settings {
     }
     if (sort != null) {
       this.sort = sort;
+    }
+    if (notifications != null) {
+      this.notifications = notifications;
     }
     if (status != null) {
       if (status.runtimeType == String) {
