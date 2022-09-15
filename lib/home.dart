@@ -75,7 +75,6 @@ class _HomePageState extends State<HomePage> {
       path = directory;
     }
     final pathFile = '$path/$fileName';
-    print(pathFile);
     File(pathFile).createSync(recursive: true);
     await _record.start(
       path: pathFile,
