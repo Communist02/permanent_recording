@@ -8,7 +8,6 @@ import 'fraud.dart';
 import 'settings.dart';
 import 'recordings.dart';
 import 'global.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -52,13 +51,7 @@ class _HomePageState extends State<HomePage> {
       default:
         format = 'm4a';
     }
-    final String directory;
-    if (appSettings.path.isEmpty) {
-      final storage = await getExternalStorageDirectory();
-      directory = '${storage?.path}';
-    } else {
-      directory = appSettings.path;
-    }
+    final String directory = appSettings.path;
     final DateTime dateTime = DateTime.now();
     final String fileName = '${DateFormat('dd.MM.yyyy HH-mm-ss').format(dateTime)}.$format';
     final String path;
@@ -102,6 +95,28 @@ class _HomePageState extends State<HomePage> {
         if (appSettings.notifications && await Permission.notification.isDenied) {
           await Permission.notification.request();
         }
+        if (await Permission.ignoreBatteryOptimizations.isDenied) {
+          await Permission.ignoreBatteryOptimizations.request();
+        }
+      }
+      if (appSettings.path.isEmpty) {
+        if (!mounted) return;
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Не выбрана директория'),
+              content: const Text('Выберите в настройках директорию для сохранения записей.'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Ок'),
+                ),
+              ],
+            );
+          },
+        );
+        return;
       }
       if (await Permission.microphone.isGranted) {
         await record();

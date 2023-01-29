@@ -52,7 +52,7 @@ class _RecordingsPageState extends State<RecordingsPage> {
               }
             }
             if (appSettings.path.isEmpty) {
-              return const Center(child: Text('Выберите директорию для записей в настройках'));
+              return const Center(child: Text('Выберите в настройках директорию для записей'));
             }
             else if (audioFiles.isEmpty) {
               return const Center(child: Text('Нет записей'));
