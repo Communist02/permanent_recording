@@ -55,22 +55,20 @@ class _HomePageState extends State<HomePage> {
     final String directory;
     if (appSettings.path.isEmpty) {
       final storage = await getExternalStorageDirectory();
-      directory = '${storage?.path}/Recordings';
+      directory = '${storage?.path}';
     } else {
       directory = appSettings.path;
     }
     final DateTime dateTime = DateTime.now();
-    final String fileName =
-        '${DateFormat('dd.MM.yyyy HH-mm-ss').format(dateTime)}.$format';
+    final String fileName = '${DateFormat('dd.MM.yyyy HH-mm-ss').format(dateTime)}.$format';
     final String path;
     final f = NumberFormat('00');
     if (appSettings.sort == SortRecords.year.value) {
-      path = '$directory${dateTime.year}';
+      path = '$directory/${dateTime.year}';
     } else if (appSettings.sort == SortRecords.yearForMonth.value) {
-      path = '$directory${dateTime.year}/${f.format(dateTime.month)}';
+      path = '$directory/${dateTime.year}/${f.format(dateTime.month)}';
     } else if (appSettings.sort == SortRecords.yearForMonthForDay.value) {
-      path =
-          '$directory${dateTime.year}/${f.format(dateTime.month)}/${f.format(dateTime.day)}';
+      path = '$directory/${dateTime.year}/${f.format(dateTime.month)}/${f.format(dateTime.day)}';
     } else {
       path = directory;
     }
@@ -98,32 +96,33 @@ class _HomePageState extends State<HomePage> {
 
     Future startRecording({bool split = false}) async {
       if (!split) {
-        if (await Permission.storage.isDenied) {
-          await Permission.storage.request();
-        }
         if (await Permission.microphone.isDenied) {
           await Permission.microphone.request();
         }
+        if (appSettings.notifications && await Permission.notification.isDenied) {
+          await Permission.notification.request();
+        }
       }
-      if (await Permission.storage.isGranted &&
-          await Permission.microphone.isGranted) {
+      if (await Permission.microphone.isGranted) {
         await record();
         final prefs = await SharedPreferences.getInstance();
         prefs.setString('status', 'record');
       } else {
+        if (!mounted) return;
         showDialog(
           context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Нет прав доступа'),
-            content: const Text(
-                'Для записи звука необходимо предоставить доступ к микрофону и файловому хранилищу'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Ок'),
-              ),
-            ],
-          ),
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Нет прав доступа'),
+              content: const Text('Для записи звука необходимо предоставить доступ к микрофону.'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Ок'),
+                ),
+              ],
+            );
+          },
         );
       }
       setState(() {});
@@ -168,8 +167,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     Future checkRecording() async {
-      if (!await _record.isRecording() &&
-          appSettings.status == RecordingStatus.record) {
+      if (!await _record.isRecording() && appSettings.status == RecordingStatus.record) {
         startRecording();
       }
     }
@@ -245,9 +243,7 @@ class _HomePageState extends State<HomePage> {
               IconButton(
                 icon: const Icon(Icons.repeat),
                 iconSize: 50,
-                onPressed: appSettings.status == RecordingStatus.none
-                    ? null
-                    : splitRecording,
+                onPressed: appSettings.status == RecordingStatus.none ? null : splitRecording,
               ),
               IconButton(
                 icon: appSettings.status == RecordingStatus.none
@@ -264,9 +260,7 @@ class _HomePageState extends State<HomePage> {
               ),
               IconButton(
                 iconSize: 50,
-                icon: appSettings.status == RecordingStatus.pause
-                    ? const Icon(Icons.play_arrow)
-                    : const Icon(Icons.pause),
+                icon: appSettings.status == RecordingStatus.pause ? const Icon(Icons.play_arrow) : const Icon(Icons.pause),
                 onPressed: appSettings.status == RecordingStatus.none
                     ? null
                     : appSettings.status == RecordingStatus.pause

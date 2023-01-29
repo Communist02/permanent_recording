@@ -56,12 +56,8 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   int duration = 0;
-  double bitRate = bitRates[appSettings.codec]!
-      .indexOf(appSettings.bitRate ~/ 1000)
-      .toDouble();
-  double samplingRate = samplingRates[appSettings.codec]!
-      .indexOf(appSettings.samplingRate)
-      .toDouble();
+  double bitRate = bitRates[appSettings.codec]!.indexOf(appSettings.bitRate ~/ 1000).toDouble();
+  double samplingRate = samplingRates[appSettings.codec]!.indexOf(appSettings.samplingRate).toDouble();
 
   @override
   Widget build(BuildContext context) {
@@ -79,32 +75,33 @@ class _SettingsPageState extends State<SettingsPage> {
               subtitle: Text(appSettings.theme == 'light'
                   ? 'Светлая тема'
                   : appSettings.theme == 'dark'
-                  ? 'Темная тема'
-                  : 'Системная тема'),
+                      ? 'Темная тема'
+                      : 'Системная тема'),
               onTap: () {
                 showDialog<String>(
                   context: context,
-                  builder: (context) =>
-                      SimpleDialog(
-                        title: const Text('Тема приложения'),
-                        children: [
-                          ListTile(
-                            leading: const Icon(Icons.light_mode_outlined),
-                            title: const Text('Светлая тема'),
-                            onTap: () => Navigator.pop(context, 'light'),
-                          ),
-                          ListTile(
-                            leading: const Icon(Icons.dark_mode_outlined),
-                            title: const Text('Темная тема'),
-                            onTap: () => Navigator.pop(context, 'dark'),
-                          ),
-                          ListTile(
-                            leading: const Icon(Icons.phone_android_outlined),
-                            title: const Text('Системная тема'),
-                            onTap: () => Navigator.pop(context, 'system'),
-                          ),
-                        ],
-                      ),
+                  builder: (context) {
+                    return SimpleDialog(
+                      title: const Text('Тема приложения'),
+                      children: [
+                        ListTile(
+                          leading: const Icon(Icons.light_mode_outlined),
+                          title: const Text('Светлая тема'),
+                          onTap: () => Navigator.pop(context, 'light'),
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.dark_mode_outlined),
+                          title: const Text('Темная тема'),
+                          onTap: () => Navigator.pop(context, 'dark'),
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.phone_android_outlined),
+                          title: const Text('Системная тема'),
+                          onTap: () => Navigator.pop(context, 'system'),
+                        ),
+                      ],
+                    );
+                  },
                 ).then((value) {
                   if (value != null) {
                     setState(() {
@@ -128,53 +125,48 @@ class _SettingsPageState extends State<SettingsPage> {
                     appSettings.codec == 'AAC LC'
                         ? 'AAC LC (m4a)'
                         : appSettings.codec == 'AAC HE'
-                        ? 'AAC HE (m4a)'
-                        : appSettings.codec == 'OPUS'
-                        ? 'OPUS (ogg)'
-                        : 'WAV (wav)',
+                            ? 'AAC HE (m4a)'
+                            : appSettings.codec == 'OPUS'
+                                ? 'OPUS (ogg)'
+                                : 'WAV (wav)',
                   ),
                   onTap: () {
                     showDialog<String>(
                       context: context,
-                      builder: (context) =>
-                          SimpleDialog(
-                            title: const Text('Формат записи'),
-                            children: [
-                              ListTile(
-                                title: const Text('AAC LC (m4a)'),
-                                onTap: () => Navigator.pop(context, 'AAC LC'),
-                              ),
-                              ListTile(
-                                title: const Text('AAC HE (m4a)'),
-                                onTap: () => Navigator.pop(context, 'AAC HE'),
-                              ),
-                              ListTile(
-                                title: const Text('OPUS (ogg)'),
-                                onTap: () => Navigator.pop(context, 'OPUS'),
-                              ),
-                              ListTile(
-                                title: const Text('WAV (wav)'),
-                                onTap: () => Navigator.pop(context, 'WAV'),
-                              ),
-                            ],
-                          ),
+                      builder: (context) {
+                        return SimpleDialog(
+                          title: const Text('Формат записи'),
+                          children: [
+                            ListTile(
+                              title: const Text('AAC LC (m4a)'),
+                              onTap: () => Navigator.pop(context, 'AAC LC'),
+                            ),
+                            ListTile(
+                              title: const Text('AAC HE (m4a)'),
+                              onTap: () => Navigator.pop(context, 'AAC HE'),
+                            ),
+                            ListTile(
+                              title: const Text('OPUS (ogg)'),
+                              onTap: () => Navigator.pop(context, 'OPUS'),
+                            ),
+                            ListTile(
+                              title: const Text('WAV (wav)'),
+                              onTap: () => Navigator.pop(context, 'WAV'),
+                            ),
+                          ],
+                        );
+                      },
                     ).then((value) {
                       if (value != null) {
                         setState(() {
                           appSettings.codec = value;
                           appSettings.bitRate = defaultBitRates[value]! * 1000;
-                          appSettings.samplingRate =
-                          defaultSamplingRates[value]!;
-                          bitRate = bitRates[appSettings.codec]!
-                              .indexOf(appSettings.bitRate ~/ 1000)
-                              .toDouble();
-                          samplingRate = samplingRates[appSettings.codec]!
-                              .indexOf(appSettings.samplingRate)
-                              .toDouble();
+                          appSettings.samplingRate = defaultSamplingRates[value]!;
+                          bitRate = bitRates[appSettings.codec]!.indexOf(appSettings.bitRate ~/ 1000).toDouble();
+                          samplingRate = samplingRates[appSettings.codec]!.indexOf(appSettings.samplingRate).toDouble();
                           changePrefs('codec', appSettings.codec);
                           changePrefs('bitRates', appSettings.bitRate);
-                          changePrefs(
-                              'samplingRates', appSettings.samplingRate);
+                          changePrefs('samplingRates', appSettings.samplingRate);
                         });
                       }
                     });
@@ -184,22 +176,18 @@ class _SettingsPageState extends State<SettingsPage> {
                   leading: Text(
                     '${appSettings.bitRate ~/ 1000}\nkbps',
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   title: const Text('Битрейт'),
                   subtitle: Slider(
                     value: bitRate,
                     max: bitRates[appSettings.codec]!.length.toDouble() - 1,
                     divisions: bitRates[appSettings.codec]!.length - 1,
-                    label:
-                    '${bitRates[appSettings.codec]![bitRate.toInt()]} kbps',
+                    label: '${bitRates[appSettings.codec]![bitRate.toInt()]} kbps',
                     onChanged: (double value) {
                       setState(() {
                         bitRate = value;
-                        appSettings.bitRate =
-                            bitRates[appSettings.codec]![bitRate.toInt()] *
-                                1000;
+                        appSettings.bitRate = bitRates[appSettings.codec]![bitRate.toInt()] * 1000;
                         changePrefs(
                           'bitRate',
                           bitRates[appSettings.codec]![bitRate.toInt()] * 1000,
@@ -212,45 +200,33 @@ class _SettingsPageState extends State<SettingsPage> {
                   title: const Text('Справка'),
                   subtitle: Text(
                     'Потребление памяти\n'
-                        'Минута: ${(appSettings.bitRate / 8192 * 60)
-                        .toStringAsFixed(2)} КБ\n'
-                        'Час: ${(appSettings.bitRate / 8388608 * 3600)
-                        .toStringAsFixed(2)} МБ\n'
-                        'День: ${(appSettings.bitRate / 8388608 * 86400)
-                        .toStringAsFixed(2)} МБ\n'
-                        'Неделя: ${(appSettings.bitRate / 8388608 * 604800)
-                        .toStringAsFixed(2)} МБ\n'
-                        'Месяц: ${(appSettings.bitRate / 8589934592 * 2592000)
-                        .toStringAsFixed(2)} ГБ\n'
-                        'Год: ${(appSettings.bitRate / 8589934592 * 31536000)
-                        .toStringAsFixed(2)} ГБ',
+                    'Минута: ${(appSettings.bitRate / 8192 * 60).toStringAsFixed(2)} КБ\n'
+                    'Час: ${(appSettings.bitRate / 8388608 * 3600).toStringAsFixed(2)} МБ\n'
+                    'День: ${(appSettings.bitRate / 8388608 * 86400).toStringAsFixed(2)} МБ\n'
+                    'Неделя: ${(appSettings.bitRate / 8388608 * 604800).toStringAsFixed(2)} МБ\n'
+                    'Месяц: ${(appSettings.bitRate / 8589934592 * 2592000).toStringAsFixed(2)} ГБ\n'
+                    'Год: ${(appSettings.bitRate / 8589934592 * 31536000).toStringAsFixed(2)} ГБ',
                   ),
                 ),
                 ListTile(
                   leading: Text(
                     '${appSettings.samplingRate}\nГц',
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   title: const Text('Частота дискретизации звука'),
                   subtitle: Slider(
                     value: samplingRate,
-                    max:
-                    samplingRates[appSettings.codec]!.length.toDouble() - 1,
+                    max: samplingRates[appSettings.codec]!.length.toDouble() - 1,
                     divisions: samplingRates[appSettings.codec]!.length - 1,
-                    label:
-                    '${samplingRates[appSettings.codec]![samplingRate
-                        .toInt()]} Гц',
+                    label: '${samplingRates[appSettings.codec]![samplingRate.toInt()]} Гц',
                     onChanged: (double value) {
                       setState(() {
                         samplingRate = value;
-                        appSettings.samplingRate = samplingRates[
-                        appSettings.codec]![samplingRate.toInt()];
+                        appSettings.samplingRate = samplingRates[appSettings.codec]![samplingRate.toInt()];
                         changePrefs(
                           'samplingRate',
-                          samplingRates[appSettings.codec]![
-                          samplingRate.toInt()],
+                          samplingRates[appSettings.codec]![samplingRate.toInt()],
                         );
                       });
                     },
@@ -265,38 +241,34 @@ class _SettingsPageState extends State<SettingsPage> {
               children: [
                 ListTile(
                   leading: const Icon(Icons.folder_outlined, size: 40),
-                  title: const Text('Выбор директории для записи'),
+                  title: const Text('Директория для сохранения записей'),
                   subtitle: Text(
-                    appSettings.path.isEmpty
-                        ? 'По умолчанию'
-                        : appSettings.path,
+                    appSettings.path.isEmpty ? 'Путь не выбран' : appSettings.path,
                   ),
                   onTap: () async {
                     showDialog<String>(
                       context: context,
-                      builder: (context) =>
-                          SimpleDialog(
-                            title: const Text('Выбор действия'),
-                            children: [
-                              ListTile(
-                                leading: const Icon(Icons.folder_open),
-                                title: const Text('Выбрать директорию'),
-                                onTap: () =>
-                                    Navigator.pop(context, 'directory'),
-                              ),
-                              ListTile(
-                                leading: const Icon(Icons.restart_alt_outlined),
-                                title: const Text(
-                                    'Установить путь по умолчанию'),
-                                onTap: () => Navigator.pop(context, 'default'),
-                              ),
-                            ],
-                          ),
+                      builder: (context) {
+                        return SimpleDialog(
+                          title: const Text('Выбор действия'),
+                          children: [
+                            ListTile(
+                              leading: const Icon(Icons.folder_open),
+                              title: const Text('Выбрать директорию'),
+                              onTap: () => Navigator.pop(context, 'directory'),
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.remove_circle_outline),
+                              title: const Text('Очистить путь'),
+                              onTap: () => Navigator.pop(context, 'default'),
+                            ),
+                          ],
+                        );
+                      },
                     ).then((value) async {
                       if (value != null) {
                         if (value == 'directory') {
-                          String? directory =
-                          await FilePicker.platform.getDirectoryPath();
+                          String? directory = await FilePicker.platform.getDirectoryPath();
                           if (directory != null) {
                             appSettings.path = directory;
                             changePrefs('path', directory);
@@ -317,46 +289,35 @@ class _SettingsPageState extends State<SettingsPage> {
                     appSettings.sort == SortRecords.none.value
                         ? 'Нет'
                         : appSettings.sort == SortRecords.year.value
-                        ? 'По годам'
-                        : appSettings.sort == SortRecords.yearForMonth.value
-                        ? 'По годам и месяцам'
-                        : 'По годам, месяцам и дням',
+                            ? 'По годам'
+                            : appSettings.sort == SortRecords.yearForMonth.value
+                                ? 'По годам и месяцам'
+                                : 'По годам, месяцам и дням',
                   ),
                   onTap: () {
                     showDialog<String>(
                       context: context,
-                      builder: (context) =>
-                          SimpleDialog(
-                            title: const Text('Сортировка по папкам'),
-                            children: [
-                              ListTile(
-                                title: const Text('Нет'),
-                                onTap: () =>
-                                    Navigator.pop(
-                                        context, SortRecords.none.value),
-                              ),
-                              ListTile(
-                                title: const Text('По годам'),
-                                onTap: () =>
-                                    Navigator.pop(
-                                        context, SortRecords.year.value),
-                              ),
-                              ListTile(
-                                title: const Text('По годам и месяцам'),
-                                onTap: () =>
-                                    Navigator.pop(
-                                        context,
-                                        SortRecords.yearForMonth.value),
-                              ),
-                              ListTile(
-                                title: const Text('По годам, месяцам и дням'),
-                                onTap: () =>
-                                    Navigator.pop(
-                                        context,
-                                        SortRecords.yearForMonthForDay.value),
-                              ),
-                            ],
+                      builder: (context) => SimpleDialog(
+                        title: const Text('Сортировка по папкам'),
+                        children: [
+                          ListTile(
+                            title: const Text('Нет'),
+                            onTap: () => Navigator.pop(context, SortRecords.none.value),
                           ),
+                          ListTile(
+                            title: const Text('По годам'),
+                            onTap: () => Navigator.pop(context, SortRecords.year.value),
+                          ),
+                          ListTile(
+                            title: const Text('По годам и месяцам'),
+                            onTap: () => Navigator.pop(context, SortRecords.yearForMonth.value),
+                          ),
+                          ListTile(
+                            title: const Text('По годам, месяцам и дням'),
+                            onTap: () => Navigator.pop(context, SortRecords.yearForMonthForDay.value),
+                          ),
+                        ],
+                      ),
                     ).then((value) {
                       if (value != null) {
                         setState(() {
@@ -369,38 +330,35 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.timer_outlined, size: 40),
-                  title: const Text(
-                      'Максимальное время записи в один файл (мин.)'),
+                  title: const Text('Максимальное время записи в один файл (мин.)'),
                   subtitle: Text('${appSettings.duration ~/ 60} мин.'),
                   onTap: () {
                     showDialog<String>(
                       context: context,
-                      builder: (context) =>
-                          SimpleDialog(
-                            title: const Text('Максимальное время в минутах'),
-                            children: [
-                              Container(
-                                margin: const EdgeInsets.all(10),
-                                child: TextFormField(
-                                  keyboardType: TextInputType.number,
-                                  onChanged: (value) {
-                                    duration = int.parse(value);
-                                  },
-                                ),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  setState(() {
-                                    appSettings.duration = duration * 60;
-                                    changePrefs(
-                                        'duration', appSettings.duration);
-                                    Navigator.pop(context);
-                                  });
-                                },
-                                child: const Text('Задать время'),
-                              )
-                            ],
+                      builder: (context) => SimpleDialog(
+                        title: const Text('Максимальное время в минутах'),
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.all(10),
+                            child: TextFormField(
+                              keyboardType: TextInputType.number,
+                              onChanged: (value) {
+                                duration = int.parse(value);
+                              },
+                            ),
                           ),
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                appSettings.duration = duration * 60;
+                                changePrefs('duration', appSettings.duration);
+                                Navigator.pop(context);
+                              });
+                            },
+                            child: const Text('Задать время'),
+                          )
+                        ],
+                      ),
                     );
                   },
                 ),
@@ -408,9 +366,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   leading: const Icon(Icons.notifications_outlined, size: 40),
                   title: const Text('Уведомление о записи'),
                   subtitle: Text(
-                    appSettings.notifications == true
-                        ? 'Уведомление включено'
-                        : 'Уведомление выключено',
+                    appSettings.notifications == true ? 'Уведомление включено' : 'Уведомление выключено',
                   ),
                   trailing: Switch(
                     value: appSettings.notifications,

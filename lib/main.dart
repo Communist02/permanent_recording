@@ -37,8 +37,7 @@ class MyApp extends StatelessWidget {
           builder: (BuildContext context, _) {
             return MaterialApp(
               title: 'Permanent recording',
-              themeMode:
-                  AppTheme.getMode(context.watch<ChangeTheme>().getTheme),
+              themeMode: AppTheme.getMode(context.watch<ChangeTheme>().getTheme),
               theme: AppTheme.light,
               darkTheme: AppTheme.dark,
               home: const HomePage(),
@@ -121,7 +120,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Text(
               '$_counter',
-              style: Theme.of(context).textTheme.headline4,
+              style: Theme.of(context).textTheme.headlineMedium,
             ),
           ],
         ),

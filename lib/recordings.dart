@@ -2,9 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_manager/file_manager.dart';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'global.dart';
 
 final player = AudioPlayer();
@@ -22,41 +20,16 @@ class _RecordingsPageState extends State<RecordingsPage> {
   @override
   Widget build(BuildContext context) {
     Future<List<FileSystemEntity>> load() async {
-      if (await Permission.storage.isDenied) {
-        await Permission.storage.request();
-      }
-      if (await Permission.storage.isGranted) {
-        final Directory directory;
-        if (appSettings.path.isEmpty) {
-          final storage = await getExternalStorageDirectory();
-          directory = Directory('${storage?.path}/Recordings/');
-        } else {
-          directory = Directory(appSettings.path);
-        }
+      if (appSettings.path.isNotEmpty) {
+        final Directory directory = Directory(appSettings.path);
         if (!directory.existsSync()) {
           return [];
         }
-        List<FileSystemEntity>? folders =
-            directory.listSync(recursive: true, followLinks: false);
+        List<FileSystemEntity>? folders = directory.listSync(recursive: true, followLinks: false);
         folders = folders.reversed.toList();
         return folders;
-      } else {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Нет прав доступа'),
-            content: const Text(
-                'Для просмотра записей необходим доступ к файловому хранилищу'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Ок'),
-              ),
-            ],
-          ),
-        );
-        return [];
       }
+      return [];
     }
 
     return Scaffold(
@@ -73,13 +46,15 @@ class _RecordingsPageState extends State<RecordingsPage> {
             audioFiles.clear();
             for (final FileSystemEntity entity in entities) {
               if (FileManager.isFile(entity)) {
-                if (['m4a', 'ogg', 'wav']
-                    .contains(entity.path.split('/').last.split('.').last)) {
+                if (['m4a', 'ogg', 'wav'].contains(entity.path.split('/').last.split('.').last)) {
                   audioFiles.add(entity.path);
                 }
               }
             }
-            if (audioFiles.isEmpty) {
+            if (appSettings.path.isEmpty) {
+              return const Center(child: Text('Выберите директорию для записей в настройках'));
+            }
+            else if (audioFiles.isEmpty) {
               return const Center(child: Text('Нет записей'));
             }
             return ListView.builder(
@@ -130,20 +105,16 @@ class _RecordingsPageState extends State<RecordingsPage> {
           children: [
             Padding(
               padding: const EdgeInsets.all(10),
-              child: Text(filePath.split('/').last,
-                  style: const TextStyle(fontSize: 20)),
+              child: Text(filePath.split('/').last, style: const TextStyle(fontSize: 20)),
             ),
             StreamBuilder(
                 stream: player.durationStream,
                 builder: (context, AsyncSnapshot<Duration?> durationSnapshot) {
                   return StreamBuilder<Duration>(
                     stream: player.positionStream,
-                    builder:
-                        (context, AsyncSnapshot<Duration> positionSnapshot) {
-                      final int position =
-                          positionSnapshot.data?.inSeconds ?? 0;
-                      final int duration =
-                          durationSnapshot.data?.inSeconds ?? 0;
+                    builder: (context, AsyncSnapshot<Duration> positionSnapshot) {
+                      final int position = positionSnapshot.data?.inSeconds ?? 0;
+                      final int duration = durationSnapshot.data?.inSeconds ?? 0;
                       return Row(
                         children: [
                           SizedBox(
@@ -234,9 +205,7 @@ class _RecordingsPageState extends State<RecordingsPage> {
                   },
                 ),
                 IconButton(
-                  icon: player.playing
-                      ? const Icon(Icons.pause_circle)
-                      : const Icon(Icons.play_circle),
+                  icon: player.playing ? const Icon(Icons.pause_circle) : const Icon(Icons.play_circle),
                   iconSize: 80,
                   onPressed: () {
                     setState(() {
@@ -255,9 +224,7 @@ class _RecordingsPageState extends State<RecordingsPage> {
                     setState(
                       () {
                         final index = audioFiles.indexOf(filePath);
-                        if (index != -1 &&
-                            audioFiles.length > 1 &&
-                            index < audioFiles.length - 1) {
+                        if (index != -1 && audioFiles.length > 1 && index < audioFiles.length - 1) {
                           player.setFilePath(audioFiles[index + 1]);
                           filePath = audioFiles[index + 1];
                         } else if (index != -1 && audioFiles.length > 1) {
