@@ -107,7 +107,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     setState(() {
                       appSettings.theme = value;
                       changePrefs('theme', value);
-                      context.read<ChangeTheme>().change();
+                      context.read<ChangeTheme>().change(value);
                     });
                   }
                 });
@@ -169,7 +169,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           changePrefs('samplingRates', appSettings.samplingRate);
                         });
                       }
-                    });
+                    },);
                   },
                 ),
                 ListTile(

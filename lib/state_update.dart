@@ -6,8 +6,8 @@ class ChangeTheme with ChangeNotifier {
 
   String get getTheme => _theme;
 
-  void change() {
-    _theme = appSettings.theme;
+  void change(theme) {
+    _theme = theme;
     notifyListeners();
   }
 }
@@ -21,6 +21,7 @@ class ChangeTime with ChangeNotifier {
     _time = _time + 1;
     notifyListeners();
   }
+
   void change(int time) {
     _time = time;
     notifyListeners();

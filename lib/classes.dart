@@ -1,8 +1,12 @@
 enum RecordingStatus {
-  none,
-  record,
-  pause,
-  split;
+  none('none'),
+  record('record'),
+  pause('pause'),
+  split('split');
+
+  final String value;
+
+  const RecordingStatus(this.value);
 }
 
 enum SortRecords {
@@ -30,6 +34,18 @@ class Settings {
   String sort = 'none';
   bool notifications = true;
   RecordingStatus status = RecordingStatus.none;
+
+  Map<String, dynamic> toMap() {
+    return {
+      'path': path,
+      'codec': codec,
+      'bitRate': bitRate,
+      'samplingRate': samplingRate,
+      'sort': sort,
+      'notifications': notifications,
+      'status': status.value,
+    };
+  }
 
   void change({
     String? theme,

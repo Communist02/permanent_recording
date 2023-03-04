@@ -95,9 +95,6 @@ class _HomePageState extends State<HomePage> {
         if (appSettings.notifications && await Permission.notification.isDenied) {
           await Permission.notification.request();
         }
-        if (await Permission.ignoreBatteryOptimizations.isDenied) {
-          await Permission.ignoreBatteryOptimizations.request();
-        }
       }
       if (appSettings.path.isEmpty) {
         if (!mounted) return;
