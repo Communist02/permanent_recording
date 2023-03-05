@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_background/flutter_background.dart';
 import 'package:record/record.dart';
 import 'classes.dart';
 import 'fraud.dart';
@@ -16,6 +17,7 @@ import 'notifications.dart';
 final _record = Record();
 bool _isTimer = false;
 int time = 0;
+bool background = false;
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -77,6 +79,18 @@ class _HomePageState extends State<HomePage> {
     if (appSettings.notifications) {
       Notifications.showRecordNotification();
     }
+
+    if (!background) {
+      const androidConfig = FlutterBackgroundAndroidConfig(
+        notificationTitle: "flutter_background example app",
+        notificationText: "Background notification for keeping the example app running in the background",
+        notificationImportance: AndroidNotificationImportance.Default,
+        notificationIcon:
+            AndroidResource(name: 'background_icon', defType: 'drawable'), // Default is ic_launcher from folder mipmap
+      );
+      background = await FlutterBackground.initialize(androidConfig: androidConfig);
+    }
+    background = await FlutterBackground.enableBackgroundExecution();
   }
 
   @override
@@ -163,6 +177,7 @@ class _HomePageState extends State<HomePage> {
         time = 0;
       });
       Notifications.deleteNotification(0);
+      await FlutterBackground.disableBackgroundExecution();
     }
 
     Future splitRecording() async {

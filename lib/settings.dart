@@ -53,6 +53,9 @@ class _SettingsPageState extends State<SettingsPage> {
     if (value.runtimeType == double) {
       prefs.setDouble(key, value);
     }
+    if (value.runtimeType == bool) {
+      prefs.setBool(key, value);
+    }
   }
 
   int duration = 0;

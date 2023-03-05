@@ -2,19 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:permanent_recording/state_update.dart';
 import 'package:permanent_recording/theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:workmanager/workmanager.dart';
 import 'global.dart';
 import 'home.dart';
 import 'package:provider/provider.dart';
-import 'record.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Workmanager().initialize(
-      record, // The top level function, aka callbackDispatcher
-      isInDebugMode: true // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
-  );
-  Workmanager().registerOneOffTask("task-identifier", "simpleTask");
   final prefs = await SharedPreferences.getInstance();
   appSettings.change(
     theme: prefs.getString('theme'),
