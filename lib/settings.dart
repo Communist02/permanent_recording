@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'global.dart';
 import 'classes.dart';
 import 'package:file_picker/file_picker.dart';
+import 'notifications.dart';
 
 const Map<String, List<int>> bitRates = {
   'AAC LC': [8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 128, 160, 192, 256],
@@ -159,20 +160,22 @@ class _SettingsPageState extends State<SettingsPage> {
                           ],
                         );
                       },
-                    ).then((value) {
-                      if (value != null) {
-                        setState(() {
-                          appSettings.codec = value;
-                          appSettings.bitRate = defaultBitRates[value]! * 1000;
-                          appSettings.samplingRate = defaultSamplingRates[value]!;
-                          bitRate = bitRates[appSettings.codec]!.indexOf(appSettings.bitRate ~/ 1000).toDouble();
-                          samplingRate = samplingRates[appSettings.codec]!.indexOf(appSettings.samplingRate).toDouble();
-                          changePrefs('codec', appSettings.codec);
-                          changePrefs('bitRates', appSettings.bitRate);
-                          changePrefs('samplingRates', appSettings.samplingRate);
-                        });
-                      }
-                    },);
+                    ).then(
+                      (value) {
+                        if (value != null) {
+                          setState(() {
+                            appSettings.codec = value;
+                            appSettings.bitRate = defaultBitRates[value]! * 1000;
+                            appSettings.samplingRate = defaultSamplingRates[value]!;
+                            bitRate = bitRates[appSettings.codec]!.indexOf(appSettings.bitRate ~/ 1000).toDouble();
+                            samplingRate = samplingRates[appSettings.codec]!.indexOf(appSettings.samplingRate).toDouble();
+                            changePrefs('codec', appSettings.codec);
+                            changePrefs('bitRates', appSettings.bitRate);
+                            changePrefs('samplingRates', appSettings.samplingRate);
+                          });
+                        }
+                      },
+                    );
                   },
                 ),
                 ListTile(
@@ -346,7 +349,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             child: TextFormField(
                               keyboardType: TextInputType.number,
                               onChanged: (value) {
-                                duration = int.parse(value);
+                                duration = int.tryParse(value) ?? duration;
                               },
                             ),
                           ),
@@ -374,6 +377,11 @@ class _SettingsPageState extends State<SettingsPage> {
                   trailing: Switch(
                     value: appSettings.notifications,
                     onChanged: (bool value) {
+                      if (value == true) {
+                        if (appSettings.status == RecordingStatus.record) Notifications.showRecordNotification();
+                      } else {
+                        Notifications.deleteNotification(0);
+                      }
                       setState(() {
                         appSettings.notifications = value;
                         changePrefs('notifications', value);

@@ -80,16 +80,14 @@ class _HomePageState extends State<HomePage> {
       Notifications.showRecordNotification();
     }
 
-    if (!background) {
-      const androidConfig = FlutterBackgroundAndroidConfig(
-        notificationTitle: "flutter_background example app",
-        notificationText: "Background notification for keeping the example app running in the background",
-        notificationImportance: AndroidNotificationImportance.Default,
-        notificationIcon:
-            AndroidResource(name: 'background_icon', defType: 'drawable'), // Default is ic_launcher from folder mipmap
-      );
-      background = await FlutterBackground.initialize(androidConfig: androidConfig);
-    }
+    const androidConfig = FlutterBackgroundAndroidConfig(
+      notificationTitle: "flutter_background example app",
+      notificationText: "Background notification for keeping the example app running in the background",
+      notificationImportance: AndroidNotificationImportance.Default,
+      notificationIcon:
+          AndroidResource(name: 'background_icon', defType: 'drawable'), // Default is ic_launcher from folder mipmap
+    );
+    background = await FlutterBackground.initialize(androidConfig: androidConfig);
     background = await FlutterBackground.enableBackgroundExecution();
   }
 
@@ -169,6 +167,9 @@ class _HomePageState extends State<HomePage> {
     }
 
     void stopRecording() async {
+      if (await _record.isPaused()) {
+        _record.resume();
+      }
       await _record.stop();
       final prefs = await SharedPreferences.getInstance();
       prefs.setString('status', 'none');
